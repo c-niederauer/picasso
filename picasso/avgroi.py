@@ -18,20 +18,28 @@ from . import postprocess as _postprocess
 
 
 @_numba.jit(nopython=True, nogil=True)
-def _sum(spot, size):
+def _sum_and_center_of_mass(spot, size):
+    x = 0.0
+    y = 0.0
     _sum_ = 0.0
     for i in range(size):
         for j in range(size):
+            x += spot[i, j] * i
+            y += spot[i, j] * j
             _sum_ += spot[i, j]
-
-    return _sum_
+    x /= _sum_
+    y /= _sum_
+    return _sum_, y, x
 
 
 def fit_spot(spot):
     size = spot.shape[0]
-    avg_roi = _sum(spot, size)
+    bg = _np.min(spot)
+    spot_without_bg = spot - bg
+    sum, y, x = _sum_and_center_of_mass(spot_without_bg, size)
+    photons = _np.maximum(1.0, sum)
     # result is [x, y, photons, bg, sx, sy]
-    result = [0, 0, avg_roi, avg_roi, 1, 1]
+    result = [x, y, photons, bg, 1, 1]
     return result
 
 
