@@ -229,7 +229,7 @@ def nena(locs, info, callback=None):
 
 
 def next_frame_neighbor_distance_histogram(locs, callback=None):
-    locs.sort(kind="mergesort", order="frame")
+    locs.sort_values(by=['frame'], kind="mergesort")
     frame = locs.frame
     x = locs.x
     y = locs.y
